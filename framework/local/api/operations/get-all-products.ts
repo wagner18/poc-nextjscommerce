@@ -1,8 +1,11 @@
 import { Product } from '@commerce/types/product'
 import { GetAllProductsOperation } from '@commerce/types/product'
 import type { OperationContext } from '@commerce/api/operations'
-import type { LocalConfig, Provider } from '../index'
-import data from '../../data.json'
+
+import { normalizeProduct } from '../../utils'
+
+import type { LocalConfig } from '../index'
+// import data from '../../data.json'
 
 export default function getAllProductsOperation({
   commerce,
@@ -17,8 +20,24 @@ export default function getAllProductsOperation({
     config?: Partial<LocalConfig>
     preview?: boolean
   } = {}): Promise<{ products: Product[] | any[] }> {
+
+    const { storeApiFetch, locale } = commerce.getConfig(config)
+
+    const { products, ...rest } = await storeApiFetch({
+      fetchOptions: {
+        ...(locale && {
+          headers: {
+            'Accept-Language': locale,
+          },
+        }),
+      }
+    })
+
+    // apply first fielter from variables
+    const prods = (variables.first && variables.first > 0) ? products.slice(0, variables.first) : products
+
     return {
-      products: data.products,
+      products: prods.map((p: any) => normalizeProduct(p)),
     }
   }
   return getAllProducts

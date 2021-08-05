@@ -18,7 +18,7 @@ export async function getStaticProps({
   const pagesPromise = commerce.getAllPages({ config, preview })
   const siteInfoPromise = commerce.getSiteInfo({ config, preview })
   const productPromise = commerce.getProduct({
-    variables: { slug: params!.slug },
+    query: params!.slug,
     config,
     preview,
   })
@@ -31,6 +31,8 @@ export async function getStaticProps({
   const { pages } = await pagesPromise
   const { categories } = await siteInfoPromise
   const { product } = await productPromise
+
+  // NOTE: relatedProducts placeholder
   const { products: relatedProducts } = await allProductsPromise
 
   if (!product) {

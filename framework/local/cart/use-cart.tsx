@@ -1,42 +1,57 @@
 import { useMemo } from 'react'
+import Cookies from 'js-cookie'
+import useCommerceCart, { UseCart } from '@commerce/cart/use-cart'
+
 import { SWRHook } from '@commerce/utils/types'
-import useCart, { UseCart } from '@commerce/cart/use-cart'
+import { checkoutCreate, checkoutToCart } from '../utils'
+import { GetCartHook } from '../types/cart'
 
-export default useCart as UseCart<typeof handler>
+import {
+  SHOP_CHECKOUT_COOKIE,
+} from '../const'
 
-export const handler: SWRHook<any> = {
+import {
+  GetCheckoutQuery,
+  GetCheckoutQueryVariables,
+  CheckoutDetailsFragment,
+} from '../schema'
+
+export default useCommerceCart as UseCart<typeof handler>
+
+export const handler: SWRHook<GetCartHook> = {
   fetchOptions: {
     query: '',
   },
-  async fetcher() {
-    return {
-      id: '',
-      createdAt: '',
-      currency: { code: '' },
-      taxesIncluded: '',
-      lineItems: [],
-      lineItemsSubtotalPrice: '',
-      subtotalPrice: 0,
-      totalPrice: 0,
+  async fetcher({ input: { cartId: checkoutId }, options, fetch }) {
+    let checkout
+    if (checkoutId) {
+      checkout = Cookies.get(SHOP_CHECKOUT_COOKIE)
     }
+
+console.log('checkout >>> ',checkout)
+
+    if (checkout?.completedAt || !checkoutId) {
+      checkout = await checkoutCreate(fetch)
+    }
+
+    return checkoutToCart({ checkout })
   },
-  useHook:
-    ({ useData }) =>
-    (input) => {
-      return useMemo(
-        () =>
-          Object.create(
-            {},
-            {
-              isEmpty: {
-                get() {
-                  return true
-                },
-                enumerable: true,
-              },
-            }
-          ),
-        []
-      )
-    },
+  useHook: ({ useData }) => (input) => {
+    const response = useData({
+      swrOptions: { revalidateOnFocus: false, ...input?.swrOptions },
+    })
+
+    return useMemo(
+      () =>
+        Object.create(response, {
+          isEmpty: {
+            get() {
+              return (response.data?.lineItems.length ?? 0) <= 0
+            },
+            enumerable: true,
+          },
+        }),
+      [response]
+    )
+  },
 }

@@ -1,6 +1,8 @@
 {
   "provider": "shopify",
   "features": {
+    "cart": true,
+    "search": false,
     "wishlist": false
   }
 }

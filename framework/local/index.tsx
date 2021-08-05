@@ -7,9 +7,11 @@ import {
   useCommerce as useCoreCommerce,
 } from '@commerce'
 
+import { SHOP_CHECKOUT_ID_COOKIE } from './const'
+
 export const localConfig: CommerceConfig = {
-  locale: 'en-us',
-  cartCookie: 'session',
+  locale: 'en-US',
+  cartCookie: 'SHOP_CHECKOUT_ID_COOKIE',
 }
 
 export function CommerceProvider({

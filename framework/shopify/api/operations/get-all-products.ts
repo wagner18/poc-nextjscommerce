@@ -12,14 +12,15 @@ import type { ShopifyConfig, Provider } from '..'
 import getAllProductsQuery from '../../utils/queries/get-all-products-query'
 import { normalizeProduct } from '../../utils'
 
-export default function getAllProductsOperation({
-  commerce,
-}: OperationContext<Provider>) {
-  async function getAllProducts<T extends GetAllProductsOperation>(opts?: {
-    variables?: T['variables']
-    config?: Partial<ShopifyConfig>
-    preview?: boolean
-  }): Promise<T['data']>
+export default function getAllProductsOperation({ commerce }: OperationContext<Provider>) {
+
+  async function getAllProducts<T extends GetAllProductsOperation>(
+    opts?: {
+      variables?: T['variables']
+      config?: Partial<ShopifyConfig>
+      preview?: boolean
+    }
+  ): Promise<T['data']>
 
   async function getAllProducts<T extends GetAllProductsOperation>(
     opts: {
@@ -41,12 +42,9 @@ export default function getAllProductsOperation({
   } = {}): Promise<T['data']> {
     const { fetch, locale } = commerce.getConfig(config)
 
-    const { data } = await fetch<
-      GetAllProductsQuery,
-      GetAllProductsQueryVariables
-    >(
+    const { data, ...rest } = await fetch<GetAllProductsQuery,GetAllProductsQueryVariables>(
       query,
-      { variables },
+      // { variables },
       {
         ...(locale && {
           headers: {

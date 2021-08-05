@@ -1,8 +1,9 @@
 import type { LocalConfig } from '../index'
 import { Product } from '@commerce/types/product'
 import { GetProductOperation } from '@commerce/types/product'
-import data from '../../data.json'
 import type { OperationContext } from '@commerce/api/operations'
+
+import { normalizeProduct } from '../../utils'
 
 export default function getProductOperation({
   commerce,
@@ -17,8 +18,23 @@ export default function getProductOperation({
     config?: Partial<LocalConfig>
     preview?: boolean
   } = {}): Promise<Product | {} | any> {
+
+    const { storeApiFetch, locale } = commerce.getConfig(config)
+
+    const { product, ...rest }  = await storeApiFetch({
+      query,
+      variables,
+      fetchOptions: {
+        ...(locale && {
+          headers: {
+            'Accept-Language': locale,
+          },
+        }),
+      }
+    })
+
     return {
-      product: data.products.find(({ slug }) => slug === variables!.slug),
+      product: normalizeProduct(product),
     }
   }
 

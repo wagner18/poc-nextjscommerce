@@ -11,8 +11,8 @@ import { handler as useSignup } from './auth/use-signup'
 
 export type Provider = typeof localProvider
 export const localProvider = {
-  locale: 'en-us',
-  cartCookie: 'session',
+  locale: 'en-US',
+  cartCookie: 'SHOP_CHECKOUT_ID_COOKIE',
   fetcher: fetcher,
   cart: { useCart, useAddItem, useUpdateItem, useRemoveItem },
   customer: { useCustomer },
